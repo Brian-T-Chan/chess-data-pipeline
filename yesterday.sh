@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Get the full paths for this bash script 
-# and the folder containing the chessenv
-# venv environment.
+# and a folder containing both the venv
+# environment and (a clone of) this repo.
 path=$(readlink -f -- "$0")
 location=$(dirname "$(dirname "$path")")
 
@@ -13,7 +13,7 @@ fullpathactivate="$location$activate"
 source $fullpathactivate
 
 # Run yesterday.py
-yesterday="/yesterday.py"
+yesterday="/chess-data-pipeline/yesterday.py"
 fullpathyesterday="$location$yesterday"
 
 python $fullpathyesterday
