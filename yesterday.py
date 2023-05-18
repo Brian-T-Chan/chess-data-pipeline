@@ -1,4 +1,16 @@
 
+# Collects games played yesterday by streamers on chess.com.
+#
+# The timezone this script uses is UTC.
+#
+# With the collected data, this script connects to the S3 bucket,
+# chess-dot-com-streamer-data, and sends the collected data
+# to that bucket.
+#
+# This script uses an error_logs folder for error handling.
+# The .gitignore in the repo containing this script will make
+# git ignore this error_logs folder.
+
 
 from chessdotcom import get_streamers, get_player_game_archives
 import requests
@@ -12,6 +24,7 @@ from tqdm import tqdm
 import os
 
 
+# Only get those games played yesterday. Use UTC timezone.
 
 def is_yesterday(game):
 
@@ -23,6 +36,8 @@ def is_yesterday(game):
 
     return substring in game["pgn"]
 
+
+# Use the chess.com API to get games played by streamers yesterday.
 
 def yesterdays_games(streamers):
 
@@ -50,6 +65,9 @@ def yesterdays_games(streamers):
     return yesterdays_games
 
 
+# Connect to the chess-dot-com-streamer-data S3 bucket and move the collected
+# data into that bucket.
+
 def store(folder_name, data):
 
     s3 = boto3.client('s3')
@@ -64,53 +82,29 @@ def store(folder_name, data):
     s3.put_object(Body=json_data, Bucket=bucket_name, Key=object_key)
 
 
+# Error handling.
+
 def record_error(e):
 
-    try:
+    current_dir = os.path.dirname(__file__)
 
-        current_dir = os.path.dirname(__file__)
-
-        yesterday = datetime.utcnow() - timedelta(days=1)
-        directory_path = os.path.join(current_dir, "error_logs",\
+    yesterday = datetime.utcnow() - timedelta(days=1)
+    directory_path = os.path.join(current_dir, "error_logs",\
                                                     yesterday.strftime('%Y'),\
                                                     yesterday.strftime('%m'))
-        os.makedirs(directory_path, exist_ok=True)
+    os.makedirs(directory_path, exist_ok=True)
 
-        file_name = f"error_log_{yesterday.strftime('%Y_%m_%d')}.txt"
-        file_path = os.path.join(current_dir, directory_path, file_name)
+    file_name = f"error_log_{yesterday.strftime('%Y_%m_%d')}.txt"
+    file_path = os.path.join(current_dir, directory_path, file_name)
 
-        with open(file_path, "w") as file:
-            file.write("Error: " + repr(e) + "\n")
-            file.write("Message: " + repr(e.args[0]) + "\n")
-            file.write("Details: " + repr(e.args[1:]) + "\n")
+    with open(file_path, "w") as file:
+        file.write("Error: " + repr(e) + "\n")
+        file.write("Message: " + repr(e.args[0]) + "\n")
+        file.write("Details: " + repr(e.args[1:]) + "\n")
 
-    except Exception as e:
-
-        current_dir = os.path.dirname(__file__)
-        os.makedirs(os.path.join(current_dir, "error_logs"), exist_ok=True)
-        file_path = os.path.join(current_dir, "error_logs", "error_with_recording.txt")
-
-        with open(file_path, "w") as file:
-            file.write("Error: " + repr(e) + "\n")
-            file.write("Message: " + repr(e.args[0]) + "\n")
-            file.write("Details: " + repr(e.args[1:]) + "\n")
 
 
 def main():
-
-    try:
-        print("getting yesterday's streamers ...")
-        streamers = get_streamers().json['streamers']
-    except Exception as e:
-        record_error(e)
-        return
-
-    try:
-        print("saving yesterday's streamers ...")
-        store('streamers', streamers)
-    except Exception as e:
-        record_error(e)
-        return
 
     try:
         print("getting yesterdays's games ...")
@@ -129,5 +123,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
 
