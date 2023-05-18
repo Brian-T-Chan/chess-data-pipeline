@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Get the full paths for this bash script 
-# and the folder containing this script.
+# and the folder containing the chessenv
+# venv environment.
 path=$(readlink -f -- "$0")
-location=${path%/*}
+location=$(dirname "$(dirname "$path")")
 
 # Activate the chessenv venv environment.
 activate="/chessenv/bin/activate"
