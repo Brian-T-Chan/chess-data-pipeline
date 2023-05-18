@@ -1,7 +1,8 @@
 
 # Collects games played yesterday by streamers on chess.com.
 #
-# The timezone this script uses is UTC.
+# The timezone this script uses is UTC. This matches the timezone
+# used in the EC2 instance containing this script.
 #
 # With the collected data, this script connects to the S3 bucket,
 # chess-dot-com-streamer-data, and sends the collected data
