@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Get the full paths for this bash script 
-# and a folder containing both the venv
-# environment and (a clone of) this repo.
+# Get the full path for the folder containing both 
+# the venv environment and (a clone of) this repo.
 path=$(readlink -f -- "$0")
 location=$(dirname "$(dirname "$path")")
 
