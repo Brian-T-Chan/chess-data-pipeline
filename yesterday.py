@@ -40,7 +40,9 @@ def is_yesterday(game):
 
 # Use the chess.com API to get games played by streamers yesterday.
 
-def yesterdays_games(streamers):
+def yesterdays_games():
+
+    streamers = get_streamers().json['streamers']
 
     unames = list(map(lambda x: x['username'], streamers))
     yesterdays_games = {}
@@ -109,7 +111,7 @@ def main():
 
     try:
         print("getting yesterdays's games ...")
-        games = yesterdays_games(streamers)
+        games = yesterdays_games()
     except Exception as e:
         record_error(e)
         return
